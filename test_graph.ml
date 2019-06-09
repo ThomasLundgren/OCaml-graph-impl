@@ -6,6 +6,29 @@ end
 
 module CharGraph = Graph.Make(OrdChar)
 
+let line_stream_of_channel channel =
+  Stream.from
+    (fun _ ->
+       try Some (input_line channel) with End_of_file -> None)
+
+let process_line line graph =
+  let split_list lst = String.split_on_char lst line in
+  match split_list '-' with
+  | a :: b :: rest -> Some(add_edge a b graph)
+  | _ -> None
+
+let process_lines lines graph =
+  Stream.iter process_line (lines graph)
+
+let read_file filename graph =
+  let in_chan = open_in filename in
+  try
+    process_lines (line_stream_of_channel in_chan) graph;
+    close_in in_chan
+  with e ->
+    close_in in_chan;
+    raise e
+
 let main =
   let open CharGraph in
   let g = empty in
@@ -16,13 +39,20 @@ let main =
   print_string msg;
 
   print_newline();
-  
+
   print_endline "After add_edge 'a' 'b':";
   let g = g |> add_edge 'a' 'b' in
   print_endline ("num_edges should be 1: " ^ string_of_int (num_edges g));
   print_endline ("num_vertices should be 2: " ^ string_of_int (num_vertices g));
 
   print_newline ();
+(*
+  print_endline "Reading file";
+  let g = g |> read_file "test_read.txt" in
+  print_endline ("num_edges should be 3: " ^ string_of_int (num_edges g));
+  print_endline ("num_vertices should be 3: " ^ string_of_int (num_vertices g));
+
+ print_newline (); *)
 
   print_endline "Test from_list by building graph from the list [('a', ['b';'d']); ('b', ['c']); ('c', ['a'])]:";
   let list = [('a', ['b';'d']); ('b', ['c']); ('c', ['a'])] in
