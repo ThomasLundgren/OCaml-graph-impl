@@ -1,0 +1,35 @@
+* Projekt
+** Lösningsförslag
+| a-b |
+| b-c |
+| c-d |
+| d-c |
+
+läsa in ovan från textfil, output en graf med:
+- antal hörn x
+- antal kanter x
+- antal cykler
+- valens (alla hörns valens)
+- max stig längd
+- skriv ut grafen (behöver inte vara grafisk,
+  räcker att skriva ut alla hörn och kanter)
+
+./graph_analyze.byte fil.txt (filen är argument till programmet)
+
+Stream för att läsa från fil
+Stream.peek stream -> option Kant ("a","b")
+
+let main filename =
+    let graph = filename |> stream_of_file |> edges_of_stream |>
+            graph_of_edges in
+    let vertices = Graph.num_of_vertices g in
+    let edges = Graph.num_of_edges g in
+    Printf.printf "Vertices: %d\n Edges: %d" vertices edges 
+
+- stream_of_file: try with returnera "Left exn"
+- Ta emot växlar i main-anropet: Funktor
+
+type ('a, 'b) either =
+    | Right 'a
+    | Left 'b
+Där 'b är Exception exp
