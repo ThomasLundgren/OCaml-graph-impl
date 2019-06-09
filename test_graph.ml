@@ -15,6 +15,11 @@ let main =
   let msg = msg ^ (num_vertices g |> string_of_int) ^ "\n" in
   print_string msg;
 
+  print_endline "Test add_vertex: ";
+  print_endline "Output: ";
+  let g = empty |> add_vertex 'a' |> add_vertex 'b' in
+  print_string (string_of_graph g);
+
   print_newline();
   
   print_endline "After add_edge 'a' 'b':";
@@ -66,4 +71,16 @@ let main =
   print_endline "Test to_string: ";
   print_endline "Output should be:\n'a': 'b', 'd'\n'b': 'c'\n'c': 'a'\n'd':";
   print_endline "Output: ";
-  print_string (to_string g);
+  print_string (string_of_graph g);
+
+  print_newline ();
+(*
+  let g = g |> add_edge 'b' 'd' |> add_edge 'd' 'a' in
+  let list = cycles g 'a' in
+  let list = List.hd list in
+  print_endline (key_list_to_string list "");
+
+  print_newline ();
+  print_endline "Test reading graph from file: ";
+  let g = Graph_from_file.read_file "edges.txt" in
+  print_endline (string_of_graph g); *)

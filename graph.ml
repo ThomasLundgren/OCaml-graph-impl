@@ -5,22 +5,80 @@ module type OrderedType = sig
 end
 
 module type Graph = sig
+
+  (**
+     The type of the elements stored in the graph.
+  *)
   type key
+
+  (**
+     The type of the graph data structure.
+  *)
   type graph
+
+  (**
+     Constructs and empty graph.
+  *)
   val empty : graph
+
+  (**
+     Returns the number of vertices in the graph.
+  *)
   val num_vertices : graph -> int
+
+  (**
+     Adds a vertex to the graph.
+  *)
   val add_vertex : key -> graph -> graph
+
   (**
      add_edge a b adds the directed edge a -> b to the graph
   *)
   val add_edge : key -> key -> graph -> graph
+
+  (**
+     Returns the number of edges in the graph.
+  *)
   val num_edges : graph -> int
   (*  val num_cycles : graph -> int *)
   (* val longest_path : graph -> int *)
+
+  (**
+     Returns a list of tuples containing the key and its degree.
+  *)
   val vertex_degree_list : graph -> (key * int) list
+
+  (**
+     Constructs a graph from a list on the form
+     [(k1, [a1; ...; an]); ...; (kn, [a'1; ...; a'n])]
+     where k is a key (vertex) in the graph and a and a' are the
+     vertices that k connects to.
+  *)
   val from_list : (key * key list) list -> graph
+
+  (**
+     Constructs from a graph a list on the form
+     [(k1, [a1; ...; an]); ...; (kn, [a'1; ...; a'n])]
+     where k is a key (vertex) in the graph and a and a' are the
+     vertices that k connects to.
+  *)
   val to_list : graph -> (key * key list) list
-  val to_string : graph -> string
+
+  (**
+     Returns a string representation of the graph.
+  *)
+  val string_of_graph : graph -> string
+
+  (**
+     SKA DENNA VARA SYNLIG???
+  *)
+  val paths : graph -> key -> key -> key list list
+
+  (**
+     SKA DENNA VARA SYNLIG???
+  *)
+  val cycles : graph -> key -> key list list
+
 end
 
 (* Implementation of a directed graph. *)
@@ -31,7 +89,7 @@ module Make (Ord: OrderedType) : Graph with type key = Ord.t = struct
   (* An adjacency map that maps keys of type Ord.t to a set of
      vertices *)
   module AdjMap = Map.Make(Ord)
-  
+
   (* 
      Type information:
      Graph.key = Ord.t = AdjMap.key = VertexSet.elt
@@ -40,18 +98,18 @@ module Make (Ord: OrderedType) : Graph with type key = Ord.t = struct
      VertexSet.elt = Ord.t
      VertexSet.t = Set.Make(Ord).t - the type of sets
   *)
-  
+
   type key = Ord.t
 
   type graph = VertexSet.t AdjMap.t
-  
+
   let empty = AdjMap.empty
 
   let add_vertex vertex graph =
     match (AdjMap.mem vertex graph) with
     | true -> graph
     | false -> AdjMap.add vertex VertexSet.empty graph
-                
+
   let add_edge (src : key) (dst : key) graph =
     let g =
       (* If a key for dst exists, g = graph *)
@@ -64,33 +122,59 @@ module Make (Ord: OrderedType) : Graph with type key = Ord.t = struct
       (* If the key src doesn't exist, return an empty VertexSet *)
       with Not_found -> VertexSet.empty
     in
-    (* Add the dst vertex to the src VertexSet *)
     let srcnewset = VertexSet.add dst srcset in
     AdjMap.add src srcnewset g
 
   let num_vertices graph = AdjMap.cardinal graph
 
   let num_edges graph =
-      let count_edges key vset acc = VertexSet.cardinal vset + acc
-      in
-      AdjMap.fold count_edges graph 0
-(*
-  let cycles graph =
-    let rec aux k vset acc =
-      let f v a =
-        if v = k then v :: acc
-        else aux k (AdjMap.find v) (v :: acc)
+    let count_edges key vset acc = VertexSet.cardinal vset + acc
     in
-    VertexSet.fold f vset acc
-  in
-  AdjMap.fold aux graph []*)
+    AdjMap.fold count_edges graph 0
+
+  let edge_list graph =
+    let get_edges  key set acc =
+      let list = VertexSet.elements set in
+      let rec edges l a =
+        match l with
+        | [] -> a
+        | hd :: tl -> edges tl ((key, hd) :: a)
+      in
+      edges list acc
+    in
+    AdjMap.fold get_edges graph []
+
+  let neighbors edges v cond =
+    let edge l (a, b) = if b = v && cond a then a :: l
+      else l in
+    List.fold_left edge [] edges
+
+  let rec list_path edges a to_b =
+    match to_b with
+    | [] -> assert false
+    | a' :: _ ->
+      if a' = a then [to_b]
+      else
+        let n = neighbors edges a' (fun c -> not(List.mem c to_b)) in
+        List.concat (List.map (fun c -> list_path edges a (c :: to_b)) n)
+
+  let paths graph a b =
+    let edges = edge_list graph in
+    assert (a <> b);
+    list_path edges a [b]
+
+  let cycles graph a =
+    let edges = edge_list graph in
+    let n = neighbors edges a (fun _ -> true) in
+    let p = List.concat (List.map (fun c -> list_path edges a [c]) n) in
+    List.map (fun p -> p @ [a]) p
 
   let to_list graph =
-    let rec to_tuple k vset acc =
+    let to_tuple k vset acc =
       (k, VertexSet.elements vset) :: acc
     in
     AdjMap.fold to_tuple graph [] |> List.rev
-  
+
   let from_list list =
     let rec readlist list map =
       match list with
@@ -119,7 +203,7 @@ module Make (Ord: OrderedType) : Graph with type key = Ord.t = struct
     in
     AdjMap.fold degree graph [] |> List.rev
 
-  let to_string graph =
+  let string_of_graph graph =
     let list = to_list graph in
     let rec list_to_string l acc =
       let rec subl_to_string subl acc =
@@ -136,7 +220,5 @@ module Make (Ord: OrderedType) : Graph with type key = Ord.t = struct
         list_to_string tl acc'
     in list_to_string list ""
 
-  
-      
 end
 
