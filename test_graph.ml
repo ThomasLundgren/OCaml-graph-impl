@@ -1,6 +1,7 @@
 module OrdChar = struct
   type t = char
   let compare = Char.compare
+  let to_string t = Printf.sprintf "%C" t
 end
 
 module CharGraph = Graph.Make(OrdChar)
@@ -46,4 +47,23 @@ let main =
       print_list tl
     | [] -> ()
   in
-  print_list (to_list g)
+  print_list (to_list g);
+
+  print_newline ();
+  print_endline "Test cardinality_list on the graph: ";
+  print_endline "Output should be:\n'a': 3\n'b': 2\n'c': 2\n'd': 1";
+  let list = vertex_degree_list g in
+  let rec print_c_list l =
+    match l with
+    | (key, card) :: tl -> Printf.printf "%C: %d\n" key card; print_c_list tl
+    | [] -> ()
+  in
+  print_endline "Output: ";
+  print_c_list list;
+
+  print_newline ();
+  
+  print_endline "Test to_string: ";
+  print_endline "Output should be:\n'a': 'b', 'd'\n'b': 'c'\n'c': 'a'\n'd':";
+  print_endline "Output: ";
+  print_string (to_string g);

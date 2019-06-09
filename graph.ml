@@ -1,6 +1,7 @@
 module type OrderedType = sig
   type t
-  val compare: t -> t -> int
+  val compare : t -> t -> int
+  val to_string : t -> string
 end
 
 module type Graph = sig
@@ -15,8 +16,11 @@ module type Graph = sig
   val add_edge : key -> key -> graph -> graph
   val num_edges : graph -> int
   (*  val num_cycles : graph -> int *)
+  (* val longest_path : graph -> int *)
+  val vertex_degree_list : graph -> (key * int) list
   val from_list : (key * key list) list -> graph
   val to_list : graph -> (key * key list) list
+  val to_string : graph -> string
 end
 
 (* Implementation of a directed graph. *)
@@ -93,7 +97,7 @@ module Make (Ord: OrderedType) : Graph with type key = Ord.t = struct
       | [] -> map
       | (key, vlist) :: tl ->
         let f graph v =
-          add_edge key v map
+          add_edge key v graph
         in
         let newmap =
           List.fold_left f map vlist
@@ -102,6 +106,37 @@ module Make (Ord: OrderedType) : Graph with type key = Ord.t = struct
     in
     readlist list empty
 
+  let vertex_degree_list graph =
+    let degree k vset acc =
+      let in_degree k' vset' acc' =
+        if k' = k then acc' + 1
+        else acc'
+      in
+      let out_degree = VertexSet.cardinal vset in
+      let full_degree = AdjMap.fold in_degree graph 0 + out_degree
+      in
+      (k, full_degree) :: acc
+    in
+    AdjMap.fold degree graph [] |> List.rev
+
+  let to_string graph =
+    let list = to_list graph in
+    let rec list_to_string l acc =
+      let rec subl_to_string subl acc =
+        match subl with
+        | [] -> acc ^ "\n"
+        | hd :: [] -> let acc' = acc ^ (Ord.to_string hd) in subl_to_string [] acc'
+        | hd :: tl -> let acc' = acc ^ (Ord.to_string hd ^ ", ") in subl_to_string tl acc'
+      in
+      match l with
+      | [] -> acc
+      | (key, vlist) :: tl ->
+        let acc' = acc ^ (Ord.to_string key ^ ": " ^ subl_to_string vlist "")
+        in
+        list_to_string tl acc'
+    in list_to_string list ""
+
   
+      
 end
 

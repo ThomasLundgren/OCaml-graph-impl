@@ -6,13 +6,14 @@
 | d-c |
 
 läsa in ovan från textfil, output en graf med:
-- antal hörn x
-- antal kanter x
-- antal cykler
-- valens (alla hörns valens)
-- max stig längd
-- skriv ut grafen (behöver inte vara grafisk,
-  räcker att skriva ut alla hörn och kanter)
+--------------
+| antal hörn                 | DONE |
+| antal kanter               | DONE |
+| antal cykler               |      |
+| valens (alla hörns valens) | DONE |
+| max stig längd             |      |
+| skriv ut grafen            | DONE |
+|                            |      |
 
 ./graph_analyze.byte fil.txt (filen är argument till programmet)
 
@@ -33,3 +34,4 @@ type ('a, 'b) either =
     | Right 'a
     | Left 'b
 Där 'b är Exception exp
+
