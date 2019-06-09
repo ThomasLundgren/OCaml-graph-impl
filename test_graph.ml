@@ -9,26 +9,26 @@ module CharGraph = Graph.Make(OrdChar)
 let main =
   let open CharGraph in
   let g = empty in
-  let msg = "After creating empty graph:\n\tnum_edges should be zero: " in
+  let msg = "After creating empty graph:\nnum_edges should be zero: " in
   let msg = msg ^ (num_edges g |> string_of_int) ^ "\n" in
-  let msg = msg ^ "\tnum_vertices should be zero: " in
+  let msg = msg ^ "num_vertices should be zero: " in
   let msg = msg ^ (num_vertices g |> string_of_int) ^ "\n" in
   print_string msg;
 
   print_newline();
   
-  print_endline "After adding an edge 'a' -> 'b':";
+  print_endline "After add_edge 'a' 'b':";
   let g = g |> add_edge 'a' 'b' in
-  print_endline ("\tnum_edges should be 1: " ^ string_of_int (num_edges g));
-  print_endline ("\tnum_vertices should be 2: " ^ string_of_int (num_vertices g));
+  print_endline ("num_edges should be 1: " ^ string_of_int (num_edges g));
+  print_endline ("num_vertices should be 2: " ^ string_of_int (num_vertices g));
 
   print_newline ();
 
   print_endline "Test from_list by building graph from the list [('a', ['b';'d']); ('b', ['c']); ('c', ['a'])]:";
   let list = [('a', ['b';'d']); ('b', ['c']); ('c', ['a'])] in
   let g = from_list list in
-  print_endline ("\tnum_edges should be 4: " ^ string_of_int (num_edges g));
-  print_endline ("\tnum_vertices should be 4: " ^ string_of_int (num_vertices g));
+  print_endline ("num_edges should be 4: " ^ string_of_int (num_edges g));
+  print_endline ("num_vertices should be 4: " ^ string_of_int (num_vertices g));
 
   print_newline();
 
@@ -50,7 +50,7 @@ let main =
   print_list (to_list g);
 
   print_newline ();
-  print_endline "Test cardinality_list on the graph: ";
+  print_endline "Test vertex_degree_list on the graph: ";
   print_endline "Output should be:\n'a': 3\n'b': 2\n'c': 2\n'd': 1";
   let list = vertex_degree_list g in
   let rec print_c_list l =
