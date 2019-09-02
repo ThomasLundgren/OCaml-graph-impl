@@ -74,12 +74,28 @@ let main =
   print_string (string_of_graph g);
 
   print_newline ();
-(*
-  let g = g |> add_edge 'b' 'd' |> add_edge 'd' 'a' in
-  let list = cycles g 'a' in
-  let list = List.hd list in
-  print_endline (key_list_to_string list "");
 
+  let gr = empty in
+  let gr = gr |> add_edge 'a' 'b' |> add_edge 'b' 'c' |> add_edge 'c' 'a' |> add_edge 'c' 'd' |> add_edge 'd' 'a'
+  in
+  (*
+  let list = cycles gr 'b' in
+  let cycle_list = List.hd list in
+  let rec print_cycle_list l =
+    match l with
+    | [] -> print_endline
+    | hd :: tl -> Printf.printf "%C, " hd; print_cycle_list tl
+  in
+  print_cycle_list cycle_list; *)
+
+  print_endline "Test num_cycles: ";
+  print_endline "Output should be:\ 2";
+  print_string "Output: ";
+  print_int (num_cycles gr);
+
+  print_newline ();
+  
+(*
   print_newline ();
   print_endline "Test reading graph from file: ";
   let g = Graph_from_file.read_file "edges.txt" in
