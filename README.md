@@ -1,2 +1,2 @@
 # OCamlProjekt
-En implementation av en riktad graf i OCaml.
+An implementation of a directed graph in OCaml.
